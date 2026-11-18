@@ -23,4 +23,4 @@ Projektet samlar vattentemperaturer från svenska badplatser och sjöar, sparar 
 - SLU Miljödata MVM: kräver token (hemlighet `SLU_MVM_TOKEN`), historik från 1964.
 - SITES: Erken 2017-06 – 2025-12 importerad med `scripts/import_sites.py` (lucka dec 2025 – sep 2026 innan livedatat börjar). Bolmen ej importerad. Nedladdning kräver licensgodkännande i webbläsaren.
 - Linköping (ArcGIS saknar temperaturfält), Skellefteå (givare åter sommar 2027), Ulricehamn (avböjt datadelning), Uniper (ingen temperatur).
-- HaV (`sources/hav.py`): kod klar men gw.havochvatten.se tar timeout från GitHub Actions. Körs manuellt från svensk anslutning.
+- HaV (`sources/hav.py`): kod klar men gw.havochvatten.se tar timeout från GitHub Actions. Körs från användarens Windows-dator med `scripts/hav_lokal.ps1` (Schemaläggaren, måndagar).

@@ -64,3 +64,22 @@ ORDER BY dag;
    ```
 
 Vattentypen sätts i respektive källmodul (`LAKES` eller `WATERBODY`).
+
+## HaV på din dator (Windows)
+
+HaV:s server svarar inte GitHub Actions, så den källan körs från din dator med `scripts/hav_lokal.ps1`. Skriptet hämtar proverna, committar och pushar, och pushen bygger om sidan.
+
+Första gången (tar 15–20 minuter, hämtar fem års prov):
+
+```powershell
+git clone https://github.com/jpeka/sjoTemp.git "$env:USERPROFILE\sjoTemp"
+powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\sjoTemp\scripts\hav_lokal.ps1"
+```
+
+Schemalägg en gång i veckan (måndagar 07:30):
+
+```powershell
+schtasks /Create /TN "sjoTemp HaV" /SC WEEKLY /D MON /ST 07:30 /TR "powershell -NoProfile -ExecutionPolicy Bypass -File %USERPROFILE%\sjoTemp\scripts\hav_lokal.ps1"
+```
+
+Logg: `%USERPROFILE%\sjoTemp\hav_lokal.log`.
