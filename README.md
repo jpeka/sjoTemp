@@ -6,13 +6,21 @@ Samlar in vattentemperaturer från badplatser i Sverige, sparar allt som histori
 
 ## Källor
 
-| Id | Källa | Badplatser | Hur datat hämtas |
-|---|---|---|---|
-| `karlskrona` | [Karlskrona kommun](https://service.karlskrona.se/FileStorageArea/Documents/badmedtemp.html) | 23 (varav 5 sjöar) | GeoJSON, senaste värdet per badplats |
-| `bjarekraft` | [Bjäre Kraft](https://www.bjarekraft.se/privat/badtemperatur) | 8 (Västersjön är sjö) | HTML-sidan tolkas, senaste värdet |
-| `sodertalje` | [Södertälje kommun](https://api.sodertalje.se/ui/#!/1) | 9 | Node-RED-dashboard via socket.io, ger 30 dagars historik |
+| Id | Källa | Badplatser | Hur datat hämtas | Schema |
+|---|---|---|---|---|
+| `karlskrona` | [Karlskrona kommun](https://service.karlskrona.se/FileStorageArea/Documents/badmedtemp.html) | 23 (varav 5 sjöar) | GeoJSON, senaste värdet per badplats | timvis |
+| `bjarekraft` | [Bjäre Kraft](https://www.bjarekraft.se/privat/badtemperatur) | 8 (Västersjön är sjö) | HTML-sidan tolkas, senaste värdet | timvis |
+| `sodertalje` | [Södertälje kommun](https://catalog.sodertalje.se) | 9, givare på ca 1 m | REST (`api.sodertalje.se/GETALLwatertemp`), historik från mars 2021 | timvis |
+| `erken` | [Erkenlaboratoriet](https://erken-data.ebc.uu.se/ErkenPublic/index.html) | Erken, profil 1–15 m | Campbell-webbserver, timmedel, sparas per hel meter | timvis |
+| `hav` | [HaV Badplatser och badvatten](https://www.havochvatten.se/data-kartor-och-rapporter/data-och-statistik/data-och-apier/api-badplatser-och-badvatten.html) | ca 2 600 (1 843 sjöar) | REST, badvattenprov med temperatur, 5 år bakåt | dagligen maj–sep, annars måndagar |
 
-Allt som källorna publicerar sparas, även havsbaden. Sidan visar sjöarna som standard.
+Allt som källorna publicerar sparas, även havsbaden. Sidan visar sjöarna som standard, och HaV väljs till med knappen eftersom proverna är glesa.
+
+Historik hämtas med *Run workflow* i Actions med fälten `source` och `backfill` (t.ex. `sodertalje` och `2021-03-01`), eller lokalt:
+
+```
+python scripts/collect.py --source sodertalje --backfill 2021-03-01
+```
 
 ## Så fungerar det
 
@@ -27,9 +35,9 @@ Allt som källorna publicerar sparas, även havsbaden. Sidan visar sjöarna som 
 I repot (textfiler, en sanning):
 
 - `data/stations.csv` – en rad per badplats: `station_id, source, native_id, name, waterbody, lat, lon, first_seen, last_seen`
-- `data/observations/<källa>/<ÅÅÅÅ-MM>.csv` – mätvärden: `station_id, timestamp, parameter, value, unit`
+- `data/observations/<källa>/<ÅÅÅÅ-MM>.csv` – mätvärden: `station_id, timestamp, parameter, depth_m, value, unit` (`depth_m` tomt = ytnära eller okänt)
 
-Tider är i UTC. `waterbody` är `lake`, `sea`, `river` eller `unknown`.
+Tider är i UTC. På sidan visas grundaste djupet per station; nedladdningarna har alla djup. `waterbody` är `lake`, `sea`, `river` eller `unknown`.
 
 För nedladdning på webbsidan:
 

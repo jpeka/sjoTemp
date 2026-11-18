@@ -2,8 +2,19 @@ name: Hämta och publicera
 
 on:
   schedule:
-    - cron: "23 * * * *"   # varje timme (UTC)
+    - cron: "23 * * * *"          # varje timme: källor med SCHEDULE = "hourly"
+    - cron: "41 3 * 5-9 *"        # HaV dagligen maj–september
+    - cron: "41 3 * 1-4,10-12 1"  # HaV på måndagar resten av året
   workflow_dispatch:
+    inputs:
+      source:
+        description: "Kör bara en källa (tomt = alla timvisa)"
+        required: false
+        default: ""
+      backfill:
+        description: "Hämta historik från datum ÅÅÅÅ-MM-DD (kräver källa)"
+        required: false
+        default: ""
   push:
     branches: [main]
     paths: ["web/**", "scripts/**", "sources/**", ".github/workflows/**"]
@@ -20,15 +31,29 @@ concurrency:
 jobs:
   collect:
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Hämta alla källor
+      - name: Hämta källor
         if: github.event_name != 'push'
-        run: python scripts/collect.py
+        env:
+          SLU_MVM_TOKEN: ${{ secrets.SLU_MVM_TOKEN }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ inputs.source }}" ]; then
+            if [ -n "${{ inputs.backfill }}" ]; then
+              python scripts/collect.py --source "${{ inputs.source }}" --backfill "${{ inputs.backfill }}"
+            else
+              python scripts/collect.py --source "${{ inputs.source }}"
+            fi
+          elif [ "${{ github.event.schedule }}" = "23 * * * *" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            python scripts/collect.py --schedule hourly
+          else
+            python scripts/collect.py --schedule daily
+          fi
 
       - name: Spara nya mätvärden
         if: github.event_name != 'push'
@@ -38,7 +63,7 @@ jobs:
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add data
             git commit -m "Nya mätvärden $(date -u +%Y-%m-%dT%H:%MZ)"
-            git push
+            for i in 1 2 3; do git pull --rebase -q && git push && break; sleep 5; done
           else
             echo "Inget nytt att spara."
           fi

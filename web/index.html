@@ -55,7 +55,8 @@
 
   <div class="filters" id="sources"></div>
   <div class="filters">
-    <label class="toggle"><input type="checkbox" id="showAll"> Visa även hav och okända</label>
+    <label class="toggle"><input type="checkbox" id="showAll"> Visa även hav och vattendrag</label>
+    <label class="toggle"><input type="checkbox" id="showOld"> Visa badplatser utan mätning senaste 30 dygnen</label>
   </div>
 
   <div id="groups"></div>
@@ -77,7 +78,7 @@
   <section class="panel">
     <div class="toolbar"><h2>Ladda ner data</h2></div>
     <div class="dl">
-      <a href="sjotemp.sqlite" download><b>sjotemp.sqlite</b><span>Hela databasen (SQLite): tabellerna sources, stations, observations och vyn observations_named.</span></a>
+      <a href="sjotemp.sqlite" download><b>sjotemp.sqlite</b><span>Hela databasen (SQLite): tabellerna sources, stations, observations (med mätdjup depth_m) och vyn observations_named.</span></a>
       <a href="observations.csv" download><b>observations.csv</b><span>Alla mätvärden med stationsnamn, vattentyp och källa. Tider i UTC.</span></a>
       <a href="stations.csv" download><b>stations.csv</b><span>Alla badplatser med källa, vattentyp, koordinater och första/senaste mätning.</span></a>
       <a href="data.json"><b>data.json</b><span>Samma data som sidan använder, kompakt JSON.</span></a>
@@ -91,7 +92,9 @@
 const PALETTE = ["#2f7ebc","#d1702c","#3a9a5b","#a64ca6","#c4a017","#d64550","#1aa3a3","#7a5cc8","#8a6d3b","#5b8c2a","#e0679b","#4a6fa5"];
 const WB = { lake: "sjö", sea: "hav", river: "å", unknown: "okänd" };
 const fmt = new Intl.DateTimeFormat("sv-SE", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Stockholm" });
-const state = { hidden: new Set(), sources: new Set(), showAll: false, days: 7 };
+const state = { hidden: new Set(), sources: new Set(), showAll: false, showOld: false, days: 7 };
+const OFF_BY_DEFAULT = new Set(["hav"]);  // många badplatser med glesa prov – väljs till med knappen
+const lastTs = s => Date.parse(DATA.series[s.station_id].at(-1)[0]);
 let DATA, chart, colorOf = {};
 
 const num = v => v.toFixed(1).replace(".", ",");
@@ -104,7 +107,8 @@ function ago(d) {
 
 function visibleStations() {
   return DATA.stations.filter(s =>
-    state.sources.has(s.source) && (state.showAll || s.waterbody === "lake") && (DATA.series[s.station_id] || []).length);
+    state.sources.has(s.source) && (state.showAll || s.waterbody === "lake") && (DATA.series[s.station_id] || []).length &&
+    (state.showOld || Date.now() - lastTs(s) < 30 * 864e5));
 }
 
 function renderSources() {
@@ -138,7 +142,8 @@ function renderCards() {
       card.className = "card" + (state.hidden.has(s.station_id) ? " off" : "");
       card.innerHTML = `
         <div class="name"><span class="dot" style="background:${colorOf[s.station_id]}"></span>${s.name}
-          ${state.showAll ? `<span class="tag">${WB[s.waterbody] || s.waterbody}</span>` : ""}</div>
+          ${state.showAll ? `<span class="tag">${WB[s.waterbody] || s.waterbody}</span>` : ""}
+          ${s.depth ? `<span class="tag">${num(s.depth).replace(",0", "")} m</span>` : ""}</div>
         <div class="temp">${num(v)} °C</div>
         <div class="when${stale ? " stale" : ""}">${fmt.format(t)}<br>${ago(t)}</div>`;
       card.onclick = () => { state.hidden.has(s.station_id) ? state.hidden.delete(s.station_id) : state.hidden.add(s.station_id); renderAll(); };
@@ -187,6 +192,7 @@ document.getElementById("range").addEventListener("click", e => {
   renderChart();
 });
 document.getElementById("showAll").addEventListener("change", e => { state.showAll = e.target.checked; renderAll(); });
+document.getElementById("showOld").addEventListener("change", e => { state.showOld = e.target.checked; renderAll(); });
 
 async function load() {
   try {
@@ -194,7 +200,7 @@ async function load() {
     if (!res.ok) throw new Error("HTTP " + res.status);
     const first = !DATA;
     DATA = await res.json();
-    if (first) Object.keys(DATA.sources).forEach(id => state.sources.add(id));
+    if (first) Object.keys(DATA.sources).filter(id => !OFF_BY_DEFAULT.has(id)).forEach(id => state.sources.add(id));
     DATA.stations.sort((a, b) => a.source.localeCompare(b.source) || a.name.localeCompare(b.name, "sv"));
     // Sjöarna får färger först så att de skiljer sig åt i standardvyn.
     [...DATA.stations].sort((a, b) => (a.waterbody !== "lake") - (b.waterbody !== "lake"))
@@ -203,7 +209,7 @@ async function load() {
       `${DATA.counts.observations.toLocaleString("sv-SE")} mätvärden från ${DATA.counts.stations} badplatser · uppdaterad ${fmt.format(new Date(DATA.generated))}`;
     document.getElementById("note").innerHTML = "Källor: " + Object.values(DATA.sources)
       .map(s => `<a href="${s.page}">${s.name}</a>`).join(" · ") +
-      ". Värdena hämtas varje timme och sparas här, så historiken växer över tid. Tider visas i svensk tid; i nedladdningarna är de i UTC.";
+      ". Sensorerna hämtas varje timme och HaV:s badvattenprov dagligen under sommaren. Diagrammet visar alla mätvärden för de senaste " + DATA.detail_days + " dygnen och dygnsmedel före det; nedladdningarna innehåller allt, även alla djup. Tider visas i svensk tid; i nedladdningarna är de i UTC.";
     renderAll();
   } catch (e) {
     document.getElementById("sub").innerHTML = `<span class="err">Kunde inte läsa data (${e.message}).</span>`;

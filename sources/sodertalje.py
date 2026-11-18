@@ -1,29 +1,26 @@
-"""Södertälje kommun – badtemperaturer (Node-RED-dashboard på api.sodertalje.se).
+"""Södertälje kommun – badtemperaturer (IoT-givare på ca 1 m djup, Telge Nät).
 
-Dashboarden har inget REST-API. Datat skickas över socket.io (Engine.IO v4,
-long polling). Efter anslutning ber vi om "ui-replay-state" och får då:
-  - tabellen med aktuella värden (inkl. givarens EUI och koordinater)
-  - diagrammet "senaste 30 dagarna" med alla badplatsers tidsserier
-Det betyder att varje körning också fyller i upp till 30 dagars historik.
+Öppet REST-API, dokumenterat i kommunens datakatalog (catalog.sodertalje.se, store 15):
+  https://api.sodertalje.se/getwatertemp                         senaste värde per aktiv givare
+  https://api.sodertalje.se/GETALLwatertemp?start=ÅÅÅÅ-MM-DD&end=ÅÅÅÅ-MM-DD   alla mätningar i intervallet
+Historik finns från mars 2021. API:et svarar "429: Too many requests" vid täta anrop,
+så historiken hämtas en månad i taget med paus.
 """
-import http.cookiejar
 import json
 import time
+import urllib.error
 import urllib.request
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
-from . import Observation, slugify
+from . import Observation, slugify, to_float
 
 SOURCE_ID = "sodertalje"
 NAME = "Södertälje kommun – badtemperaturer"
-BASE = "https://api.sodertalje.se/ui/socket.io/?EIO=4&transport=polling"
-URL = BASE
-PAGE = "https://api.sodertalje.se/ui/#!/1"
-RAW_EXT = "json"
-
-CHART_30D = "3fa013c2.8540ac"
-CHART_7D = "dbb8d7e7.ba72f8"
-CURRENT_TABLE = "f5989e5d.bf3508"
+URL = "https://api.sodertalje.se/GETALLwatertemp"
+PAGE = "https://www.sodertalje.se/kultur-och-fritid/natur-och-friluftsliv/badplatser/"
+SCHEDULE = "hourly"
+HISTORY_START = date(2021, 3, 1)
+DEPTH_M = 1.0  # enligt kommunens databeskrivning
 
 # Klassning av vattentyp. "unknown" visas bara när man väljer att visa alla badplatser.
 WATERBODY = {
@@ -35,101 +32,61 @@ WATERBODY = {
 }
 
 
-def _poll(opener, sid=None, body=None, timeout=45):
-    url = f"{BASE}&t={int(time.time() * 1000)}" + (f"&sid={sid}" if sid else "")
-    data = body.encode("utf-8") if body is not None else None
-    req = urllib.request.Request(url, data=data, headers={
-        "User-Agent": "sjoTemp (github.com/jpeka/sjotemp)",
-        "Content-Type": "text/plain;charset=UTF-8",
-    })
-    with opener.open(req, timeout=timeout) as r:
-        return r.read().decode("utf-8")
+def _get(url: str, retries: int = 4) -> bytes:
+    req = urllib.request.Request(url, headers={"User-Agent": "sjoTemp (github.com/jpeka/sjotemp)"})
+    for attempt in range(retries):
+        try:
+            with urllib.request.urlopen(req, timeout=120) as r:
+                body = r.read()
+        except urllib.error.HTTPError as e:
+            body = e.read()
+            if e.code not in (429, 500, 502, 503):
+                raise
+        if not body.lstrip().startswith(b"429"):
+            return body
+        time.sleep(30 * (attempt + 1))
+    raise RuntimeError(f"Södertälje: för många anrop ({url})")
+
+
+def _range_url(start: date, end: date) -> str:
+    return f"{URL}?start={start.isoformat()}&end={end.isoformat()}"
 
 
 def fetch_raw() -> bytes:
-    opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
-    hs = _poll(opener)
-    if not hs.startswith("0"):
-        raise ValueError(f"Oväntat svar vid anslutning: {hs[:80]}")
-    sid = json.loads(hs[1:])["sid"]
-    _poll(opener, sid, "40")
-
-    found, replay_sent = {}, False
-    deadline = time.time() + 90
-    while time.time() < deadline and not (CHART_30D in found and CURRENT_TABLE in found):
-        for pkt in _poll(opener, sid).split("\x1e"):
-            if pkt == "2":  # ping
-                _poll(opener, sid, "3")
-            elif pkt.startswith("40") and not replay_sent:
-                _poll(opener, sid, '42["ui-replay-state"]')
-                replay_sent = True
-            elif pkt.startswith("42"):
-                try:
-                    name, *args = json.loads(pkt[2:])
-                except ValueError:
-                    continue
-                if name == "update-value" and args and isinstance(args[0], dict):
-                    if args[0].get("id") in (CHART_30D, CHART_7D, CURRENT_TABLE):
-                        found[args[0]["id"]] = args[0]
-        if not replay_sent:
-            _poll(opener, sid, '42["ui-replay-state"]')
-            replay_sent = True
-    try:
-        _poll(opener, sid, "41", timeout=10)  # koppla ner
-    except Exception:
-        pass
-    if not found:
-        raise ValueError("Fick inga badtemperaturer från dashboarden")
-    return json.dumps(found, ensure_ascii=False).encode("utf-8")
-
-
-def _iso(ms) -> str:
-    return datetime.fromtimestamp(ms / 1000, tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    today = datetime.now(timezone.utc).date()
+    return _get(_range_url(today - timedelta(days=2), today + timedelta(days=1)))
 
 
 def parse(raw: bytes) -> list:
-    found = json.loads(raw.decode("utf-8"))
-    coords, out, current = {}, [], []
-
-    for row in ((found.get(CURRENT_TABLE) or {}).get("msg") or {}).get("payload") or []:
-        name = (row.get("alias") or "").strip()
-        if not name:
+    rows = json.loads(raw.decode("utf-8"))
+    out = []
+    for r in rows if isinstance(rows, list) else []:
+        name = (r.get("alias") or "").strip()
+        temp = to_float(r.get("temp_water"))
+        ts = r.get("ts")
+        if not name or temp is None or not isinstance(ts, (int, float)):
             continue
-        coords[name] = (row.get("latitude"), row.get("longitude"))
-        if isinstance(row.get("temp_water"), (int, float)) and row.get("ts"):
-            current.append((name, row["ts"], row["temp_water"]))
-
-    # Samma mätning förekommer i flera diagram med tidsstämplar som skiljer sig några
-    # hundra millisekunder. 30-dagarsdiagrammet går först, sedan 7 dagar, sist tabellen.
-    for chart_id in (CHART_30D, CHART_7D):
-        chart = found.get(chart_id)
-        if not chart:
-            continue
-        for block in chart.get("value") or []:
-            vals = block.get("values") or {}
-            for name, points in zip(vals.get("series") or [], vals.get("data") or []):
-                if not isinstance(points, list):
-                    continue
-                for p in points:
-                    if isinstance(p, dict) and isinstance(p.get("y"), (int, float)) and isinstance(p.get("x"), (int, float)):
-                        out.append((name.strip(), p["x"], p["y"]))
-
-    kept, obs = {}, []
-    for name, ms, temp in out + current:
-        prev = kept.setdefault(name, [])
-        if any(abs(ms - k) < 120_000 for k in prev):
-            continue
-        prev.append(ms)
-        lat, lon = coords.get(name, (None, None))
-        obs.append(Observation(
+        out.append(Observation(
             source=SOURCE_ID,
             native_id=slugify(name),
             name=name,
             waterbody=WATERBODY.get(name, "unknown"),
-            lat=lat, lon=lon,
-            timestamp=_iso(ms),
+            lat=to_float(r.get("latitude")), lon=to_float(r.get("longitude")),
+            timestamp=datetime.fromtimestamp(ts / 1000, tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             parameter="water_temp",
-            value=round(float(temp), 2),
+            value=round(temp, 2),
             unit="degC",
+            depth_m=DEPTH_M,
         ))
-    return obs
+    return out
+
+
+def backfill(since: date = HISTORY_START):
+    """Hämtar historik en månad i taget från `since` till idag."""
+    start = date(since.year, since.month, 1)
+    today = datetime.now(timezone.utc).date()
+    while start <= today:
+        nxt = date(start.year + (start.month == 12), start.month % 12 + 1, 1)
+        yield parse(_get(_range_url(start, nxt)))
+        start = nxt
+        time.sleep(15)

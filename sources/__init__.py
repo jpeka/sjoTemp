@@ -4,8 +4,11 @@ Varje källa är en modul med:
   SOURCE_ID   kort id, t.ex. "karlskrona"
   NAME        läsbart namn
   URL         var datat hämtas
+  PAGE        sida att länka till
+  SCHEDULE    "hourly" (standard) eller "daily"
   fetch_raw() -> rådata (det som laddades ner)
   parse(raw)  -> list[Observation]
+  backfill(since) (valfri) -> generator av list[Observation], för historik
 
 Lägg till en ny källa genom att skapa en modul här och registrera den i SOURCES.
 """
@@ -26,6 +29,7 @@ class Observation:
     parameter: str         # t.ex. "water_temp"
     value: float
     unit: str              # t.ex. "degC"
+    depth_m: Optional[float] = None  # mätdjup i meter; None = ytnära/okänt
 
     @property
     def station_id(self) -> str:
@@ -39,6 +43,20 @@ def slugify(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", t).strip("-")
 
 
-from . import bjarekraft, karlskrona, sodertalje  # noqa: E402
+def to_float(v) -> Optional[float]:
+    """Tolkar tal som kan komma som sträng med komma. Returnerar None för tomt/NaN."""
+    if isinstance(v, (int, float)):
+        f = float(v)
+    elif isinstance(v, str):
+        try:
+            f = float(v.strip().replace(",", "."))
+        except ValueError:
+            return None
+    else:
+        return None
+    return None if f != f else f  # NaN
 
-SOURCES = {m.SOURCE_ID: m for m in (karlskrona, bjarekraft, sodertalje)}
+
+from . import bjarekraft, erken, hav, karlskrona, sodertalje  # noqa: E402
+
+SOURCES = {m.SOURCE_ID: m for m in (karlskrona, bjarekraft, sodertalje, erken, hav)}

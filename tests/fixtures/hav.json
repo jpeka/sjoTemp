@@ -1,0 +1,4 @@
+{"waters":[{"id":"SE0910680000003506","name":"Axamobadet","waterTypeId":3,"waterTypeIdText":"Sjö","samplingPointPosition":{"latitude":"57.75","longitude":"14.05"}},
+{"id":"SE0441264000000306","name":"Mossbylund","waterTypeId":1,"waterTypeIdText":"Hav","samplingPointPosition":{"latitude":"55.413288992130504","longitude":"13.625274381664624"}}],
+"results":{"SE0910680000003506":[{"takenAt":"2026-08-02T22:00:00Z","waterTemp":"20"},{"takenAt":"2025-07-06T22:00:00Z","waterTemp":"18,5"},{"takenAt":"2024-06-09T22:00:00Z","waterTemp":null}],
+"SE0441264000000306":[{"takenAt":"2026-07-01T08:00:00Z","waterTemp":"17"}]}}
