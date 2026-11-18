@@ -49,6 +49,8 @@ def depth_key(d):
 
 
 def main():
+    # Nedladdningsfilerna (sqlite, csv) byggs bara på begäran: python scripts/build.py --downloads
+    downloads = "--downloads" in sys.argv
     st_path = os.path.join(DATA, "stations.csv")
     stations = read_csv(st_path) if os.path.exists(st_path) else []
     st_by_id = {s["station_id"]: s for s in stations}
@@ -69,7 +71,7 @@ def main():
 
     # --- SQLite (kompakt: heltals-id för station, unix-tid) och CSV, i ett svep ---
     db_path = os.path.join(SITE, "sjotemp.sqlite")
-    db = sqlite3.connect(db_path)
+    db = sqlite3.connect(db_path if downloads else ":memory:")
     db.executescript("""
         PRAGMA page_size = 8192;
         CREATE TABLE sources (source TEXT PRIMARY KEY, name TEXT, url TEXT, page TEXT);
@@ -96,7 +98,9 @@ def main():
 
     cutoff = (datetime.now(timezone.utc) - timedelta(days=DETAIL_DAYS)).strftime("%Y-%m-%dT%H:%M:%SZ")
     detail, daily, n_obs = {}, {}, 0
-    with gzip.open(os.path.join(SITE, "observations.csv.gz"), "wt", newline="", encoding="utf-8", compresslevel=9) as f:
+    csv_out = (gzip.open(os.path.join(SITE, "observations.csv.gz"), "wt", newline="", encoding="utf-8", compresslevel=9)
+               if downloads else open(os.devnull, "w", newline="", encoding="utf-8"))
+    with csv_out as f:
         w = csv.writer(f, lineterminator="\n")
         w.writerow(["timestamp", "name", "waterbody", "parameter", "depth_m", "value", "unit", "station_id", "source"])
         batch = []
@@ -109,7 +113,7 @@ def main():
             if o["parameter"] not in pid_of:
                 pid_of[o["parameter"]] = len(pid_of) + 1
                 db.execute("INSERT INTO parameters VALUES (?,?,?)", (pid_of[o["parameter"]], o["parameter"], o["unit"]))
-            if o["station_id"] in sid_of:
+            if downloads and o["station_id"] in sid_of:
                 batch.append((sid_of[o["station_id"]], int(epoch(o["timestamp"])), pid_of[o["parameter"]],
                               float(depth) if depth else None, float(o["value"])))
             if len(batch) >= 50000:
@@ -123,15 +127,18 @@ def main():
                     acc[0] += float(o["value"])
                     acc[1] += 1
         db.executemany("INSERT INTO observations VALUES (?,?,?,?,?)", batch)
-    db.execute("CREATE INDEX obs_sid_t ON observations(sid, t)")
-    db.commit()
-    db.execute("VACUUM")
-    db.close()
-    with open(db_path, "rb") as src, gzip.open(db_path + ".gz", "wb", compresslevel=9) as dst:
-        shutil.copyfileobj(src, dst)
-    os.remove(db_path)
-    if stations:
-        shutil.copy(st_path, SITE)
+    if not downloads:
+        db.close()
+    else:
+        db.execute("CREATE INDEX obs_sid_t ON observations(sid, t)")
+        db.commit()
+        db.execute("VACUUM")
+        db.close()
+        with open(db_path, "rb") as src, gzip.open(db_path + ".gz", "wb", compresslevel=9) as dst:
+            shutil.copyfileobj(src, dst)
+        os.remove(db_path)
+        if stations:
+            shutil.copy(st_path, SITE)
 
     # --- JSON för sidan (vattentemperatur på grundaste djupet) ---
     series = {}

@@ -5,7 +5,7 @@ Projektet samlar vattentemperaturer från svenska badplatser och sjöar, sparar 
 ## Struktur
 - `sources/<id>.py` – en modul per källa: `SOURCE_ID`, `NAME`, `URL`, `PAGE`, `SCHEDULE` ("hourly"/"daily"), `fetch_raw()`, `parse(raw) -> list[Observation]`, valfritt `backfill(since)`. Registreras i `sources/__init__.py`.
 - `scripts/collect.py` – hämtar och lägger till i `data/` (dedup: samma station, parameter och djup inom 90 s).
-- `scripts/build.py` – bygger `site/` (index.html, data.json, sjotemp.sqlite.gz, observations.csv.gz, stations.csv). `site/` committas inte.
+- `scripts/build.py` – bygger `site/` (index.html, data.json). Användaren vill inte erbjuda nedladdning på sidan; `--downloads` bygger sqlite/csv lokalt. `site/` committas inte.
 - `web/index.html` – sidan (Chart.js från jsDelivr). Visar sjöar och grundaste djup; HaV är avvald som standard.
 - `.github/workflows/collect.yml` – timvis insamling, historik via workflow_dispatch (`source`, `backfill`), deploy till Pages.
 

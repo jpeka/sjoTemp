@@ -38,11 +38,6 @@
   .seg button + button { border-left:1px solid var(--line); }
   .seg button.on { background:var(--accent); color:#fff; }
   .chartbox { position:relative; height:440px; }
-  .dl { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; }
-  .dl a { display:block; background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:10px 12px; color:var(--ink); text-decoration:none; }
-  .dl a:hover { border-color:var(--accent); }
-  .dl b { display:block; color:var(--accent); }
-  .dl span { color:var(--muted); font-size:.82rem; }
   .note { color:var(--muted); font-size:.85rem; margin-top:18px; }
   .note a { color:var(--accent); }
   .err { color:#c0392b; }
@@ -75,15 +70,6 @@
     <div class="chartbox"><canvas id="chart"></canvas></div>
   </section>
 
-  <section class="panel">
-    <div class="toolbar"><h2>Ladda ner data</h2></div>
-    <div class="dl">
-      <a href="sjotemp.sqlite.gz" download><b>sjotemp.sqlite.gz</b><span>Hela databasen (SQLite, gzip-packad). Använd vyn observations_named för läsbara tider, namn och mätdjup.</span></a>
-      <a href="observations.csv.gz" download><b>observations.csv.gz</b><span>Alla mätvärden med stationsnamn, vattentyp, mätdjup och källa (gzip-packad CSV). Tider i UTC.</span></a>
-      <a href="stations.csv" download><b>stations.csv</b><span>Alla badplatser med källa, vattentyp, koordinater och första/senaste mätning.</span></a>
-      <a href="data.json"><b>data.json</b><span>Samma data som sidan använder, kompakt JSON.</span></a>
-    </div>
-  </section>
 
   <p class="note" id="note"></p>
 </main>
@@ -209,7 +195,7 @@ async function load() {
       `${DATA.counts.observations.toLocaleString("sv-SE")} mätvärden från ${DATA.counts.stations} badplatser · uppdaterad ${fmt.format(new Date(DATA.generated))}`;
     document.getElementById("note").innerHTML = "Källor: " + Object.values(DATA.sources)
       .map(s => `<a href="${s.page}">${s.name}</a>`).join(" · ") +
-      ". Sensorerna hämtas varje timme och HaV:s badvattenprov dagligen under sommaren. Diagrammet visar alla mätvärden för de senaste " + DATA.detail_days + " dygnen och dygnsmedel före det; nedladdningarna innehåller allt, även alla djup. Tider visas i svensk tid; i nedladdningarna är de i UTC.";
+      ". Sensorerna hämtas varje timme och HaV:s badvattenprov varje vecka. Diagrammet visar alla mätvärden för de senaste " + DATA.detail_days + " dygnen och dygnsmedel före det. Tider visas i svensk tid.";
     renderAll();
   } catch (e) {
     document.getElementById("sub").innerHTML = `<span class="err">Kunde inte läsa data (${e.message}).</span>`;

@@ -39,7 +39,7 @@ I repot (textfiler, en sanning):
 
 Tider är i UTC. På sidan visas grundaste djupet per station; nedladdningarna har alla djup. `waterbody` är `lake`, `sea`, `river` eller `unknown`.
 
-För nedladdning på webbsidan:
+Nedladdningsfiler (byggs bara lokalt med `python scripts/build.py --downloads`, publiceras inte på sidan):
 
 - `sjotemp.sqlite.gz` – SQLite (gzip) med tabellerna `sources`, `stations`, `parameters`, `observations` och vyn `observations_named`
 - `observations.csv.gz`, `stations.csv`, `data.json`
