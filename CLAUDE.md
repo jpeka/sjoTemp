@@ -5,7 +5,7 @@ Projektet samlar vattentemperaturer från svenska badplatser och sjöar, sparar 
 ## Struktur
 - `sources/<id>.py` – en modul per källa: `SOURCE_ID`, `NAME`, `URL`, `PAGE`, `SCHEDULE` ("hourly"/"daily"), `fetch_raw()`, `parse(raw) -> list[Observation]`, valfritt `backfill(since)`. Registreras i `sources/__init__.py`.
 - `scripts/collect.py` – hämtar och lägger till i `data/` (dedup: samma station, parameter och djup inom 90 s).
-- `scripts/build.py` – bygger `site/` (index.html, data.json, sjotemp.sqlite, CSV). `site/` committas inte.
+- `scripts/build.py` – bygger `site/` (index.html, data.json, sjotemp.sqlite.gz, observations.csv.gz, stations.csv). `site/` committas inte.
 - `web/index.html` – sidan (Chart.js från jsDelivr). Visar sjöar och grundaste djup; HaV är avvald som standard.
 - `.github/workflows/collect.yml` – timvis insamling, historik via workflow_dispatch (`source`, `backfill`), deploy till Pages.
 
@@ -21,6 +21,6 @@ Projektet samlar vattentemperaturer från svenska badplatser och sjöar, sparar 
 ## Utredda men ej inkopplade källor (nov 2026)
 - Temperatur.nu: 106 vattenstationer, timvis historik. Väntar på klientnyckel (support@temperatur.nu). Dubblerar Karlskrona och Bjäre Kraft.
 - SLU Miljödata MVM: kräver token (hemlighet `SLU_MVM_TOKEN`), historik från 1964.
-- SITES (Erken 2017–2025, Bolmen): CSV, CC BY 4.0, nedladdning kräver licensgodkännande i webbläsaren.
+- SITES: Erken 2017-06 – 2025-12 importerad med `scripts/import_sites.py` (lucka dec 2025 – sep 2026 innan livedatat börjar). Bolmen ej importerad. Nedladdning kräver licensgodkännande i webbläsaren.
 - Linköping (ArcGIS saknar temperaturfält), Skellefteå (givare åter sommar 2027), Ulricehamn (avböjt datadelning), Uniper (ingen temperatur).
 - HaV (`sources/hav.py`): kod klar men gw.havochvatten.se tar timeout från GitHub Actions. Körs manuellt från svensk anslutning.

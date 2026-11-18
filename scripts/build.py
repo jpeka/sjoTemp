@@ -3,12 +3,14 @@
 
   site/index.html          sidan med diagram
   site/data.json           kompakt data för sidan
-  site/sjotemp.sqlite      hela databasen (tabeller: sources, stations, observations)
-  site/observations.csv    alla mätvärden med stationsnamn, en fil
+  site/sjotemp.sqlite.gz   hela databasen, gzip (tabeller: sources, stations, parameters, observations;
+                           vyn observations_named ger läsbara tider och namn)
+  site/observations.csv.gz alla mätvärden med stationsnamn, en fil, gzip
   site/stations.csv        stationslistan
 """
 import csv
 import glob
+import gzip
 import json
 import os
 import shutil
@@ -38,6 +40,10 @@ def iter_obs():
         yield from read_csv(path)
 
 
+def epoch(ts):
+    return datetime.strptime(ts, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc).timestamp()
+
+
 def depth_key(d):
     return float(d) if d not in (None, "") else 0.0
 
@@ -61,31 +67,36 @@ def main():
             if o["station_id"] not in page_depth or d < page_depth[o["station_id"]]:
                 page_depth[o["station_id"]] = d
 
-    # --- SQLite ---
-    db = sqlite3.connect(os.path.join(SITE, "sjotemp.sqlite"))
+    # --- SQLite (kompakt: heltals-id för station, unix-tid) och CSV, i ett svep ---
+    db_path = os.path.join(SITE, "sjotemp.sqlite")
+    db = sqlite3.connect(db_path)
     db.executescript("""
+        PRAGMA page_size = 8192;
         CREATE TABLE sources (source TEXT PRIMARY KEY, name TEXT, url TEXT, page TEXT);
         CREATE TABLE stations (
-            station_id TEXT PRIMARY KEY, source TEXT REFERENCES sources(source), native_id TEXT,
+            sid INTEGER PRIMARY KEY, station_id TEXT UNIQUE, source TEXT REFERENCES sources(source), native_id TEXT,
             name TEXT, waterbody TEXT, lat REAL, lon REAL, first_seen TEXT, last_seen TEXT);
+        CREATE TABLE parameters (pid INTEGER PRIMARY KEY, parameter TEXT UNIQUE, unit TEXT);
         CREATE TABLE observations (
-            station_id TEXT REFERENCES stations(station_id), timestamp TEXT,
-            parameter TEXT, depth_m REAL, value REAL, unit TEXT);
+            sid INTEGER REFERENCES stations(sid), t INTEGER, pid INTEGER REFERENCES parameters(pid),
+            depth_m REAL, value REAL);
         CREATE VIEW observations_named AS
-            SELECT o.timestamp, s.name, s.waterbody, o.parameter, o.depth_m, o.value, o.unit, o.station_id, s.source
-            FROM observations o JOIN stations s USING (station_id);
+            SELECT strftime('%Y-%m-%dT%H:%M:%SZ', o.t, 'unixepoch') AS timestamp, s.name, s.waterbody,
+                   p.parameter, o.depth_m, o.value, p.unit, s.station_id, s.source
+            FROM observations o JOIN stations s USING (sid) JOIN parameters p USING (pid);
     """)
     db.executemany("INSERT INTO sources VALUES (?,?,?,?)",
                    [(m.SOURCE_ID, m.NAME, m.URL, getattr(m, "PAGE", "")) for m in SOURCES.values()])
-    db.executemany("INSERT INTO stations VALUES (?,?,?,?,?,?,?,?,?)",
-                   [(s["station_id"], s["source"], s["native_id"], s["name"], s["waterbody"],
+    sid_of = {s["station_id"]: i for i, s in enumerate(stations, 1)}
+    db.executemany("INSERT INTO stations VALUES (?,?,?,?,?,?,?,?,?,?)",
+                   [(sid_of[s["station_id"]], s["station_id"], s["source"], s["native_id"], s["name"], s["waterbody"],
                      float(s["lat"]) if s["lat"] else None, float(s["lon"]) if s["lon"] else None,
                      s["first_seen"], s["last_seen"]) for s in stations])
+    pid_of = {}
 
-    # --- CSV, SQLite och sidans serier i ett svep ---
     cutoff = (datetime.now(timezone.utc) - timedelta(days=DETAIL_DAYS)).strftime("%Y-%m-%dT%H:%M:%SZ")
     detail, daily, n_obs = {}, {}, 0
-    with open(os.path.join(SITE, "observations.csv"), "w", newline="", encoding="utf-8") as f:
+    with gzip.open(os.path.join(SITE, "observations.csv.gz"), "wt", newline="", encoding="utf-8", compresslevel=9) as f:
         w = csv.writer(f, lineterminator="\n")
         w.writerow(["timestamp", "name", "waterbody", "parameter", "depth_m", "value", "unit", "station_id", "source"])
         batch = []
@@ -95,10 +106,14 @@ def main():
             depth = o.get("depth_m") or ""
             w.writerow([o["timestamp"], s.get("name", ""), s.get("waterbody", ""), o["parameter"], depth,
                         o["value"], o["unit"], o["station_id"], s.get("source", "")])
-            batch.append((o["station_id"], o["timestamp"], o["parameter"],
-                          float(depth) if depth else None, float(o["value"]), o["unit"]))
+            if o["parameter"] not in pid_of:
+                pid_of[o["parameter"]] = len(pid_of) + 1
+                db.execute("INSERT INTO parameters VALUES (?,?,?)", (pid_of[o["parameter"]], o["parameter"], o["unit"]))
+            if o["station_id"] in sid_of:
+                batch.append((sid_of[o["station_id"]], int(epoch(o["timestamp"])), pid_of[o["parameter"]],
+                              float(depth) if depth else None, float(o["value"])))
             if len(batch) >= 50000:
-                db.executemany("INSERT INTO observations VALUES (?,?,?,?,?,?)", batch)
+                db.executemany("INSERT INTO observations VALUES (?,?,?,?,?)", batch)
                 batch.clear()
             if o["parameter"] == "water_temp" and depth_key(depth) == page_depth.get(o["station_id"]):
                 if o["timestamp"] >= cutoff:
@@ -107,12 +122,14 @@ def main():
                     acc = daily.setdefault(o["station_id"], {}).setdefault(o["timestamp"][:10], [0.0, 0])
                     acc[0] += float(o["value"])
                     acc[1] += 1
-        db.executemany("INSERT INTO observations VALUES (?,?,?,?,?,?)", batch)
-    db.execute("CREATE INDEX obs_station_time ON observations(station_id, timestamp)")
-    db.execute("CREATE INDEX obs_time ON observations(timestamp)")
+        db.executemany("INSERT INTO observations VALUES (?,?,?,?,?)", batch)
+    db.execute("CREATE INDEX obs_sid_t ON observations(sid, t)")
     db.commit()
     db.execute("VACUUM")
     db.close()
+    with open(db_path, "rb") as src, gzip.open(db_path + ".gz", "wb", compresslevel=9) as dst:
+        shutil.copyfileobj(src, dst)
+    os.remove(db_path)
     if stations:
         shutil.copy(st_path, SITE)
 

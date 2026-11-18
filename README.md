@@ -11,7 +11,7 @@ Samlar in vattentemperaturer från badplatser i Sverige, sparar allt som histori
 | `karlskrona` | [Karlskrona kommun](https://service.karlskrona.se/FileStorageArea/Documents/badmedtemp.html) | 23 (varav 5 sjöar) | GeoJSON, senaste värdet per badplats | timvis |
 | `bjarekraft` | [Bjäre Kraft](https://www.bjarekraft.se/privat/badtemperatur) | 8 (Västersjön är sjö) | HTML-sidan tolkas, senaste värdet | timvis |
 | `sodertalje` | [Södertälje kommun](https://catalog.sodertalje.se) | 9, givare på ca 1 m | REST (`api.sodertalje.se/GETALLwatertemp`), historik från mars 2021 | timvis |
-| `erken` | [Erkenlaboratoriet](https://erken-data.ebc.uu.se/ErkenPublic/index.html) | Erken, profil 1–15 m | Campbell-webbserver, timmedel, sparas per hel meter | timvis |
+| `erken` | [Erkenlaboratoriet](https://erken-data.ebc.uu.se/ErkenPublic/index.html) | Erken, profil 1–15 m | Campbell-webbserver, timmedel, sparas per hel meter. Historik 2017-06 – 2025-12 från [SITES](https://meta.fieldsites.se/objects/gVQYm0aNPryFRtn2CpeuzzwF) (CC BY 4.0) via `scripts/import_sites.py` | timvis |
 | `hav` | [HaV Badplatser och badvatten](https://www.havochvatten.se/data-kartor-och-rapporter/data-och-statistik/data-och-apier/api-badplatser-och-badvatten.html) | ca 2 600 (1 843 sjöar) | REST, badvattenprov med temperatur, 5 år bakåt | manuellt (servern svarar inte GitHub Actions) |
 
 Allt som källorna publicerar sparas, även havsbaden. Sidan visar sjöarna som standard, och HaV väljs till med knappen eftersom proverna är glesa. HaV:s server tar inte emot anslutningar från GitHub Actions, så den källan körs lokalt: `python scripts/collect.py --source hav` och sedan commit + push.
@@ -41,8 +41,8 @@ Tider är i UTC. På sidan visas grundaste djupet per station; nedladdningarna h
 
 För nedladdning på webbsidan:
 
-- `sjotemp.sqlite` – SQLite med tabellerna `sources`, `stations`, `observations` och vyn `observations_named`
-- `observations.csv`, `stations.csv`, `data.json`
+- `sjotemp.sqlite.gz` – SQLite (gzip) med tabellerna `sources`, `stations`, `parameters`, `observations` och vyn `observations_named`
+- `observations.csv.gz`, `stations.csv`, `data.json`
 
 ```sql
 -- exempel
