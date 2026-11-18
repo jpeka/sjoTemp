@@ -108,7 +108,7 @@ def store(observations):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--source", choices=sorted(SOURCES), help="kör bara en källa")
-    ap.add_argument("--schedule", choices=["hourly", "daily"], help="kör källor med detta schema")
+    ap.add_argument("--schedule", choices=["hourly", "daily", "manual"], help="kör källor med detta schema")
     ap.add_argument("--raw-file", help="läs rådata från fil i stället för att hämta (kräver --source)")
     ap.add_argument("--backfill", metavar="ÅÅÅÅ-MM-DD", help="hämta historik från datum (kräver --source)")
     args = ap.parse_args()

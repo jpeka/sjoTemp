@@ -3,8 +3,11 @@
 Registret omfattar alla EU-bad och de övriga bad som kommunerna registrerar,
 med vattentyp (Sjö, Hav, Vattendrag, Delta) och provpunktens koordinater.
 Provresultaten innehåller vattentemperaturen vid provtagningen (hela grader som text)
-och går fem år tillbaka. Proverna tas främst under badsäsongen, så källan körs dagligen
-under sommaren och veckovis resten av året (se .github/workflows/hav.yml).
+och går fem år tillbaka.
+
+Obs: HaV:s server tar emot anslutningar från svenska nät men inte från GitHub Actions
+(anslutningen tar timeout), så källan körs inte automatiskt. Kör den lokalt:
+  python scripts/collect.py --source hav
 
 Dokumentation: https://www.havochvatten.se/data-kartor-och-rapporter/data-och-statistik/data-och-apier/api-badplatser-och-badvatten.html
 """
@@ -21,7 +24,7 @@ NAME = "Havs- och vattenmyndigheten – badvattenprov"
 BASE = "https://gw.havochvatten.se/external-public/bathing-waters/v2"
 URL = BASE + "/bathing-waters"
 PAGE = "https://www.havochvatten.se/badplatser-och-badvatten.html"
-SCHEDULE = "daily"
+SCHEDULE = "manual"  # gw.havochvatten.se svarar inte GitHub Actions (anslutningen tar timeout)
 PAUSE_S = 0.2
 
 WATERTYPE = {1: "sea", 2: "river", 3: "lake", 4: "river"}  # 4 = Delta

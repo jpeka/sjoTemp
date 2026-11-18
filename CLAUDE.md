@@ -7,7 +7,7 @@ Projektet samlar vattentemperaturer från svenska badplatser och sjöar, sparar 
 - `scripts/collect.py` – hämtar och lägger till i `data/` (dedup: samma station, parameter och djup inom 90 s).
 - `scripts/build.py` – bygger `site/` (index.html, data.json, sjotemp.sqlite, CSV). `site/` committas inte.
 - `web/index.html` – sidan (Chart.js från jsDelivr). Visar sjöar och grundaste djup; HaV är avvald som standard.
-- `.github/workflows/collect.yml` – timvis insamling, HaV dagligen/veckovis, historik via workflow_dispatch (`source`, `backfill`), deploy till Pages.
+- `.github/workflows/collect.yml` – timvis insamling, historik via workflow_dispatch (`source`, `backfill`), deploy till Pages.
 
 ## Datamodell
 - `data/stations.csv`: station_id (`<källa>:<native_id>`), source, native_id, name, waterbody (lake/sea/river/unknown), lat, lon, first_seen, last_seen.
@@ -23,3 +23,4 @@ Projektet samlar vattentemperaturer från svenska badplatser och sjöar, sparar 
 - SLU Miljödata MVM: kräver token (hemlighet `SLU_MVM_TOKEN`), historik från 1964.
 - SITES (Erken 2017–2025, Bolmen): CSV, CC BY 4.0, nedladdning kräver licensgodkännande i webbläsaren.
 - Linköping (ArcGIS saknar temperaturfält), Skellefteå (givare åter sommar 2027), Ulricehamn (avböjt datadelning), Uniper (ingen temperatur).
+- HaV (`sources/hav.py`): kod klar men gw.havochvatten.se tar timeout från GitHub Actions. Körs manuellt från svensk anslutning.

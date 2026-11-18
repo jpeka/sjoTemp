@@ -12,9 +12,9 @@ Samlar in vattentemperaturer från badplatser i Sverige, sparar allt som histori
 | `bjarekraft` | [Bjäre Kraft](https://www.bjarekraft.se/privat/badtemperatur) | 8 (Västersjön är sjö) | HTML-sidan tolkas, senaste värdet | timvis |
 | `sodertalje` | [Södertälje kommun](https://catalog.sodertalje.se) | 9, givare på ca 1 m | REST (`api.sodertalje.se/GETALLwatertemp`), historik från mars 2021 | timvis |
 | `erken` | [Erkenlaboratoriet](https://erken-data.ebc.uu.se/ErkenPublic/index.html) | Erken, profil 1–15 m | Campbell-webbserver, timmedel, sparas per hel meter | timvis |
-| `hav` | [HaV Badplatser och badvatten](https://www.havochvatten.se/data-kartor-och-rapporter/data-och-statistik/data-och-apier/api-badplatser-och-badvatten.html) | ca 2 600 (1 843 sjöar) | REST, badvattenprov med temperatur, 5 år bakåt | dagligen maj–sep, annars måndagar |
+| `hav` | [HaV Badplatser och badvatten](https://www.havochvatten.se/data-kartor-och-rapporter/data-och-statistik/data-och-apier/api-badplatser-och-badvatten.html) | ca 2 600 (1 843 sjöar) | REST, badvattenprov med temperatur, 5 år bakåt | manuellt (servern svarar inte GitHub Actions) |
 
-Allt som källorna publicerar sparas, även havsbaden. Sidan visar sjöarna som standard, och HaV väljs till med knappen eftersom proverna är glesa.
+Allt som källorna publicerar sparas, även havsbaden. Sidan visar sjöarna som standard, och HaV väljs till med knappen eftersom proverna är glesa. HaV:s server tar inte emot anslutningar från GitHub Actions, så den källan körs lokalt: `python scripts/collect.py --source hav` och sedan commit + push.
 
 Historik hämtas med *Run workflow* i Actions med fälten `source` och `backfill` (t.ex. `sodertalje` och `2021-03-01`), eller lokalt:
 

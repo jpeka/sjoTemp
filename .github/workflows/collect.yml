@@ -3,8 +3,6 @@ name: Hämta och publicera
 on:
   schedule:
     - cron: "23 * * * *"          # varje timme: källor med SCHEDULE = "hourly"
-    - cron: "41 3 * 5-9 *"        # HaV dagligen maj–september
-    - cron: "41 3 * 1-4,10-12 1"  # HaV på måndagar resten av året
   workflow_dispatch:
     inputs:
       source:
@@ -49,10 +47,8 @@ jobs:
             else
               python scripts/collect.py --source "${{ inputs.source }}"
             fi
-          elif [ "${{ github.event.schedule }}" = "23 * * * *" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            python scripts/collect.py --schedule hourly
           else
-            python scripts/collect.py --schedule daily
+            python scripts/collect.py --schedule hourly
           fi
 
       - name: Spara nya mätvärden
