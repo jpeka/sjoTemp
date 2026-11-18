@@ -1,0 +1,9 @@
+station_id,timestamp,parameter,value,unit
+bjarekraft:sven-jons-udde-angelholm,2026-11-18T13:31:00Z,water_temp,9.9,degC
+bjarekraft:kallbadhuset-i-bastad,2026-11-18T13:54:00Z,water_temp,9.5,degC
+bjarekraft:klitterhus-angelholm,2026-11-18T14:00:00Z,water_temp,4.3,degC
+bjarekraft:hamnen-i-vejbystrand,2026-11-18T14:20:00Z,water_temp,8.0,degC
+bjarekraft:bryggan-i-mellbystrand,2026-11-18T14:24:00Z,water_temp,10.2,degC
+bjarekraft:hamnen-i-magnarp,2026-11-18T14:50:00Z,water_temp,8.3,degC
+bjarekraft:vastersjon-hjarnarp,2026-11-18T15:01:00Z,water_temp,5.2,degC
+bjarekraft:morgonbryggan-i-torekov,2026-11-18T15:03:00Z,water_temp,7.9,degC
