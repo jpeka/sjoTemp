@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sjoTemp – vattentemperatur i svenska sjöar</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<style>
+  :root { --bg:#f6f8f9; --card:#fff; --ink:#14202b; --muted:#5d6b78; --line:#e3e8ec; --accent:#1f6f8b; --warn:#c0632b; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0f161c; --card:#172129; --ink:#e8eef2; --muted:#93a3b0; --line:#26333d; --accent:#6cc0dc; --warn:#e39a6a; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--ink); }
+  main { max-width:1100px; margin:0 auto; padding:28px 18px 56px; }
+  h1 { font-size:1.6rem; margin:0 0 4px; letter-spacing:-.01em; }
+  h2 { font-size:1.05rem; margin:0; }
+  h3 { font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:22px 0 8px; font-weight:600; }
+  .sub { color:var(--muted); margin:0 0 18px; }
+  .filters { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:6px; }
+  .chip { border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:999px; padding:5px 12px; font:inherit; font-size:.88rem; cursor:pointer; }
+  .chip.on { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .toggle { margin-left:auto; display:flex; gap:6px; align-items:center; font-size:.88rem; color:var(--muted); cursor:pointer; user-select:none; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:10px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; cursor:pointer; transition:opacity .15s; }
+  .card.off { opacity:.4; }
+  .card .name { display:flex; align-items:center; gap:8px; font-weight:600; line-height:1.25; }
+  .dot { width:10px; height:10px; border-radius:50%; flex:none; }
+  .card .temp { font-size:1.8rem; font-weight:650; margin:4px 0 0; font-variant-numeric:tabular-nums; }
+  .card .when { color:var(--muted); font-size:.8rem; }
+  .card .when.stale { color:var(--warn); }
+  .tag { font-size:.7rem; color:var(--muted); border:1px solid var(--line); border-radius:4px; padding:0 5px; margin-left:auto; font-weight:500; }
+  .panel { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; margin-top:22px; }
+  .toolbar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .seg { display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+  .seg button { background:none; border:0; color:var(--ink); padding:6px 12px; font:inherit; font-size:.88rem; cursor:pointer; }
+  .seg button + button { border-left:1px solid var(--line); }
+  .seg button.on { background:var(--accent); color:#fff; }
+  .chartbox { position:relative; height:440px; }
+  .dl { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; }
+  .dl a { display:block; background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:10px 12px; color:var(--ink); text-decoration:none; }
+  .dl a:hover { border-color:var(--accent); }
+  .dl b { display:block; color:var(--accent); }
+  .dl span { color:var(--muted); font-size:.82rem; }
+  .note { color:var(--muted); font-size:.85rem; margin-top:18px; }
+  .note a { color:var(--accent); }
+  .err { color:#c0392b; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Vattentemperatur i svenska sjöar</h1>
+  <p class="sub" id="sub">Laddar …</p>
+
+  <div class="filters" id="sources"></div>
+  <div class="filters">
+    <label class="toggle"><input type="checkbox" id="showAll"> Visa även hav och okända</label>
+  </div>
+
+  <div id="groups"></div>
+
+  <section class="panel">
+    <div class="toolbar">
+      <h2>Temperatur över tid</h2>
+      <div class="seg" id="range">
+        <button data-days="2">2 dygn</button>
+        <button data-days="7" class="on">7 dygn</button>
+        <button data-days="30">30 dygn</button>
+        <button data-days="365">1 år</button>
+        <button data-days="0">Allt</button>
+      </div>
+    </div>
+    <div class="chartbox"><canvas id="chart"></canvas></div>
+  </section>
+
+  <section class="panel">
+    <div class="toolbar"><h2>Ladda ner data</h2></div>
+    <div class="dl">
+      <a href="sjotemp.sqlite" download><b>sjotemp.sqlite</b><span>Hela databasen (SQLite): tabellerna sources, stations, observations och vyn observations_named.</span></a>
+      <a href="observations.csv" download><b>observations.csv</b><span>Alla mätvärden med stationsnamn, vattentyp och källa. Tider i UTC.</span></a>
+      <a href="stations.csv" download><b>stations.csv</b><span>Alla badplatser med källa, vattentyp, koordinater och första/senaste mätning.</span></a>
+      <a href="data.json"><b>data.json</b><span>Samma data som sidan använder, kompakt JSON.</span></a>
+    </div>
+  </section>
+
+  <p class="note" id="note"></p>
+</main>
+
+<script>
+const PALETTE = ["#2f7ebc","#d1702c","#3a9a5b","#a64ca6","#c4a017","#d64550","#1aa3a3","#7a5cc8","#8a6d3b","#5b8c2a","#e0679b","#4a6fa5"];
+const WB = { lake: "sjö", sea: "hav", river: "å", unknown: "okänd" };
+const fmt = new Intl.DateTimeFormat("sv-SE", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Stockholm" });
+const state = { hidden: new Set(), sources: new Set(), showAll: false, days: 7 };
+let DATA, chart, colorOf = {};
+
+const num = v => v.toFixed(1).replace(".", ",");
+function ago(d) {
+  const h = (Date.now() - d) / 36e5;
+  if (h < 1) return "för under en timme sedan";
+  if (h < 48) return `för ${Math.round(h)} h sedan`;
+  return `för ${Math.round(h / 24)} dygn sedan`;
+}
+
+function visibleStations() {
+  return DATA.stations.filter(s =>
+    state.sources.has(s.source) && (state.showAll || s.waterbody === "lake") && (DATA.series[s.station_id] || []).length);
+}
+
+function renderSources() {
+  const el = document.getElementById("sources");
+  el.innerHTML = "";
+  for (const [id, src] of Object.entries(DATA.sources)) {
+    const b = document.createElement("button");
+    b.className = "chip" + (state.sources.has(id) ? " on" : "");
+    b.textContent = src.name.split(" – ")[0];
+    b.title = src.name;
+    b.onclick = () => { state.sources.has(id) ? state.sources.delete(id) : state.sources.add(id); renderAll(); };
+    el.appendChild(b);
+  }
+}
+
+function renderCards() {
+  const wrap = document.getElementById("groups");
+  wrap.innerHTML = "";
+  const stations = visibleStations();
+  if (!stations.length) { wrap.innerHTML = `<p class="sub">Inga badplatser matchar urvalet.</p>`; return; }
+  for (const [srcId, src] of Object.entries(DATA.sources)) {
+    const list = stations.filter(s => s.source === srcId);
+    if (!list.length) continue;
+    const h = document.createElement("h3"); h.textContent = src.name; wrap.appendChild(h);
+    const grid = document.createElement("div"); grid.className = "cards"; wrap.appendChild(grid);
+    for (const s of list) {
+      const ser = DATA.series[s.station_id];
+      const [ts, v] = ser[ser.length - 1];
+      const t = new Date(ts), stale = Date.now() - t > 24 * 36e5;
+      const card = document.createElement("div");
+      card.className = "card" + (state.hidden.has(s.station_id) ? " off" : "");
+      card.innerHTML = `
+        <div class="name"><span class="dot" style="background:${colorOf[s.station_id]}"></span>${s.name}
+          ${state.showAll ? `<span class="tag">${WB[s.waterbody] || s.waterbody}</span>` : ""}</div>
+        <div class="temp">${num(v)} °C</div>
+        <div class="when${stale ? " stale" : ""}">${fmt.format(t)}<br>${ago(t)}</div>`;
+      card.onclick = () => { state.hidden.has(s.station_id) ? state.hidden.delete(s.station_id) : state.hidden.add(s.station_id); renderAll(); };
+      grid.appendChild(card);
+    }
+  }
+}
+
+function renderChart() {
+  const min = state.days ? Date.now() - state.days * 864e5 : null;
+  const datasets = visibleStations().filter(s => !state.hidden.has(s.station_id)).map(s => ({
+    label: s.name,
+    data: DATA.series[s.station_id].map(([t, v]) => ({ x: Date.parse(t), y: v })).filter(p => !min || p.x >= min),
+    borderColor: colorOf[s.station_id], backgroundColor: colorOf[s.station_id],
+    borderWidth: 2, pointRadius: 1.5, pointHoverRadius: 5, tension: .25, spanGaps: 36e5 * 13,
+  }));
+  const css = getComputedStyle(document.documentElement);
+  const ink = css.getPropertyValue("--muted").trim(), grid = css.getPropertyValue("--line").trim();
+  const opts = {
+    responsive: true, maintainAspectRatio: false, animation: false, parsing: false,
+    interaction: { mode: "nearest", intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: {
+        title: items => fmt.format(items[0].raw.x),
+        label: c => ` ${c.dataset.label}: ${num(c.parsed.y)} °C`,
+      } },
+    },
+    scales: {
+      x: { type: "time", min: min || undefined, max: Date.now(),
+           time: { displayFormats: { hour: "HH:mm", day: "d MMM", month: "MMM yyyy" } },
+           ticks: { color: ink, maxRotation: 0, autoSkip: true }, grid: { color: grid } },
+      y: { title: { display: true, text: "°C", color: ink }, ticks: { color: ink }, grid: { color: grid } },
+    },
+  };
+  if (chart) { chart.data.datasets = datasets; chart.options = opts; chart.update(); }
+  else chart = new Chart(document.getElementById("chart"), { type: "line", data: { datasets }, options: opts });
+}
+
+function renderAll() { renderSources(); renderCards(); renderChart(); }
+
+document.getElementById("range").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  state.days = +b.dataset.days;
+  document.querySelectorAll("#range button").forEach(x => x.classList.toggle("on", x === b));
+  renderChart();
+});
+document.getElementById("showAll").addEventListener("change", e => { state.showAll = e.target.checked; renderAll(); });
+
+async function load() {
+  try {
+    const res = await fetch("data.json?" + Date.now());
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const first = !DATA;
+    DATA = await res.json();
+    if (first) Object.keys(DATA.sources).forEach(id => state.sources.add(id));
+    DATA.stations.sort((a, b) => a.source.localeCompare(b.source) || a.name.localeCompare(b.name, "sv"));
+    // Sjöarna får färger först så att de skiljer sig åt i standardvyn.
+    [...DATA.stations].sort((a, b) => (a.waterbody !== "lake") - (b.waterbody !== "lake"))
+      .forEach(s => colorOf[s.station_id] ??= PALETTE[Object.keys(colorOf).length % PALETTE.length]);
+    document.getElementById("sub").textContent =
+      `${DATA.counts.observations.toLocaleString("sv-SE")} mätvärden från ${DATA.counts.stations} badplatser · uppdaterad ${fmt.format(new Date(DATA.generated))}`;
+    document.getElementById("note").innerHTML = "Källor: " + Object.values(DATA.sources)
+      .map(s => `<a href="${s.page}">${s.name}</a>`).join(" · ") +
+      ". Värdena hämtas varje timme och sparas här, så historiken växer över tid. Tider visas i svensk tid; i nedladdningarna är de i UTC.";
+    renderAll();
+  } catch (e) {
+    document.getElementById("sub").innerHTML = `<span class="err">Kunde inte läsa data (${e.message}).</span>`;
+  }
+}
+load();
+setInterval(load, 15 * 60 * 1000);
+</script>
+</body>
+</html>

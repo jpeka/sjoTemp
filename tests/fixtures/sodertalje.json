@@ -1,0 +1,3 @@
+{"3fa013c2.8540ac":{"value":[{"key":"3fa013c2.8540ac","values":{"series":["Eklundsnäsbadet","Bergabadet","Nya Malmsjöbadet"],"data":[[{"y":12,"x":1793699422179}],[],[{"y":4.8,"x":1794739615413},{"y":4.6,"x":1794955612465}]]}}],"id":"3fa013c2.8540ac"},
+"dbb8d7e7.ba72f8":{"value":[{"key":"dbb8d7e7.ba72f8","values":{"series":["Eklundsnäsbadet","Bergabadet","Nya Malmsjöbadet"],"data":[[],[],[{"x":1794739616283,"y":4.8},{"x":1794998812845,"y":4.5}],8],"labels":[""]}}],"id":"dbb8d7e7.ba72f8"},
+"f5989e5d.bf3508":{"msg":{"payload":[{"EUI":"24E12443305FD1D1","type":"Watertemp","temp_water":4.5,"formatted_time":"2026-11-18 11:46:52","alias":"Nya Malmsjöbadet","ts":1794998812983,"latitude":59.234823,"longitude":17.536534}]},"id":"f5989e5d.bf3508"}}

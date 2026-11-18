@@ -1,0 +1,5 @@
+{"type":"FeatureCollection","features":[
+{"type":"Feature","geometry":{"type":"Point","coordinates":[15.734236003452189,56.323766306450736]},"properties":{"idArea":"442e6e8c-c411-4367-a8a3-f83be2ca4414","nameArea":"ALLSJÖN","temperatureWater":4.9,"timeStamp":"2026-11-17T15:40:16.388+00:00"}},
+{"type":"Feature","geometry":{"type":"Point","coordinates":[15.563335590037891,56.16633455446209]},"properties":{"idArea":"bbb3c167-3aa2-4275-9655-aca34a187ac0","nameArea":"SALTÖ","temperatureWater":6.6,"timeStamp":"2026-11-18T14:16:38.820+00:00"}},
+{"type":"Feature","geometry":{"type":"Point","coordinates":[15.7328,56.1228]},"properties":{"idArea":"x-senoren","nameArea":"SENOREN","temperatureWater":"NaT","timeStamp":"2026-09-16T10:26:00.000+00:00"}}
+]}
