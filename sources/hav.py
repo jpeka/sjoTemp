@@ -27,12 +27,12 @@ PAUSE_S = 0.2
 WATERTYPE = {1: "sea", 2: "river", 3: "lake", 4: "river"}  # 4 = Delta
 
 
-def _get_json(url: str, retries: int = 3):
+def _get_json(url: str, retries: int = 3, timeout: int = 60):
     req = urllib.request.Request(url, headers={"User-Agent": "sjoTemp (github.com/jpeka/sjotemp)",
                                                "Accept": "application/json"})
     for attempt in range(retries):
         try:
-            with urllib.request.urlopen(req, timeout=60) as r:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
                 return json.loads(r.read().decode("utf-8"))
         except urllib.error.HTTPError as e:
             if e.code == 404:
@@ -46,9 +46,12 @@ def _get_json(url: str, retries: int = 3):
 
 
 def fetch_raw() -> bytes:
-    listing = _get_json(URL)["watersAndAdvisories"]
+    listing = _get_json(URL, timeout=300)["watersAndAdvisories"]
+    print(f"[hav] {len(listing)} badplatser i registret", flush=True)
     results = {}
-    for item in listing:
+    for n, item in enumerate(listing, 1):
+        if n % 250 == 0:
+            print(f"[hav] {n} provserier hämtade", flush=True)
         bw_id = item["bathingWater"]["id"]
         r = _get_json(f"{URL}/{bw_id}/results")
         results[bw_id] = (r or {}).get("results") or []
