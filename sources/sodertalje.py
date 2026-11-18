@@ -54,7 +54,7 @@ def _range_url(start: date, end: date) -> str:
 
 def fetch_raw() -> bytes:
     today = datetime.now(timezone.utc).date()
-    return _get(_range_url(today - timedelta(days=2), today + timedelta(days=1)))
+    return _get(_range_url(today - timedelta(days=2), today))
 
 
 def parse(raw: bytes) -> list:
@@ -87,6 +87,7 @@ def backfill(since: date = HISTORY_START):
     today = datetime.now(timezone.utc).date()
     while start <= today:
         nxt = date(start.year + (start.month == 12), start.month % 12 + 1, 1)
-        yield parse(_get(_range_url(start, nxt)))
+        # API:et svarar 400 om slutdatum ligger för långt fram, så sista månaden slutar idag.
+        yield parse(_get(_range_url(start, min(nxt, today))))
         start = nxt
         time.sleep(15)

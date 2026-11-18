@@ -128,8 +128,13 @@ def main():
                 if not hasattr(mod, "backfill"):
                     raise ValueError("källan saknar backfill()")
                 total = 0
-                for batch in mod.backfill(date.fromisoformat(args.backfill)):
-                    n = store(batch)
+                batches = mod.backfill(date.fromisoformat(args.backfill))
+                while True:
+                    try:
+                        batch = next(batches)
+                    except StopIteration:
+                        break
+                    n = store(batch)  # spara efter varje omgång, så att ett senare fel inte kastar bort något
                     total += n
                     print(f"[{sid}] historik: {len(batch)} värden, {n} nya", flush=True)
                 print(f"[{sid}] historik klar, {total} nya")

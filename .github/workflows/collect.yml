@@ -56,7 +56,7 @@ jobs:
           fi
 
       - name: Spara nya mätvärden
-        if: github.event_name != 'push'
+        if: always() && github.event_name != 'push'
         run: |
           if [ -n "$(git status --porcelain data)" ]; then
             git config user.name "github-actions[bot]"
@@ -69,9 +69,11 @@ jobs:
           fi
 
       - name: Bygg webbplats och databas
+        if: always()
         run: python scripts/build.py
 
       - uses: actions/upload-pages-artifact@v3
+        if: always()
         with:
           path: site
 
