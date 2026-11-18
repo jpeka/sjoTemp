@@ -40,6 +40,8 @@ def _get(url: str, retries: int = 4) -> bytes:
                 body = r.read()
         except urllib.error.HTTPError as e:
             body = e.read()
+            if e.code == 400:
+                return b"[]"  # API:et svarar 400 för perioder helt utan mätningar (t.ex. feb–mar 2026)
             if e.code not in (429, 500, 502, 503):
                 raise
         if not body.lstrip().startswith(b"429"):
