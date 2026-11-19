@@ -57,6 +57,6 @@ def to_float(v) -> Optional[float]:
     return None if f != f else f  # NaN
 
 
-from . import bjarekraft, erken, hav, karlskrona, sodertalje  # noqa: E402
+from . import bjarekraft, erken, karlskrona, sodertalje  # noqa: E402
 
-SOURCES = {m.SOURCE_ID: m for m in (karlskrona, bjarekraft, sodertalje, erken, hav)}
+SOURCES = {m.SOURCE_ID: m for m in (karlskrona, bjarekraft, sodertalje, erken)}

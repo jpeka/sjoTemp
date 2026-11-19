@@ -12,9 +12,8 @@ Samlar in vattentemperaturer från badplatser i Sverige, sparar allt som histori
 | `bjarekraft` | [Bjäre Kraft](https://www.bjarekraft.se/privat/badtemperatur) | 8 (Västersjön är sjö) | HTML-sidan tolkas, senaste värdet | timvis |
 | `sodertalje` | [Södertälje kommun](https://catalog.sodertalje.se) | 9, givare på ca 1 m | REST (`api.sodertalje.se/GETALLwatertemp`), historik från mars 2021 | timvis |
 | `erken` | [Erkenlaboratoriet](https://erken-data.ebc.uu.se/ErkenPublic/index.html) | Erken, profil 1–15 m | Campbell-webbserver, timmedel, sparas per hel meter. Historik 2017-06 – 2025-12 från [SITES](https://meta.fieldsites.se/objects/gVQYm0aNPryFRtn2CpeuzzwF) (CC BY 4.0) via `scripts/import_sites.py` | timvis |
-| `hav` | [HaV Badplatser och badvatten](https://www.havochvatten.se/data-kartor-och-rapporter/data-och-statistik/data-och-apier/api-badplatser-och-badvatten.html) | ca 2 600 (1 843 sjöar) | REST, badvattenprov med temperatur, 5 år bakåt | manuellt (servern svarar inte GitHub Actions) |
 
-Allt som källorna publicerar sparas, även havsbaden. Sidan visar sjöarna som standard, och HaV väljs till med knappen eftersom proverna är glesa. HaV:s server tar inte emot anslutningar från GitHub Actions, så den källan körs lokalt: `python scripts/collect.py --source hav` och sedan commit + push.
+Allt som källorna publicerar sparas, även havsbaden. Sidan visar sjöarna som standard.
 
 Historik hämtas med *Run workflow* i Actions med fälten `source` och `backfill` (t.ex. `sodertalje` och `2021-03-01`), eller lokalt:
 
@@ -65,21 +64,3 @@ ORDER BY dag;
 
 Vattentypen sätts i respektive källmodul (`LAKES` eller `WATERBODY`).
 
-## HaV på din dator (Windows)
-
-HaV:s server svarar inte GitHub Actions, så den källan körs från din dator med `scripts/hav_lokal.ps1`. Skriptet hämtar proverna, committar och pushar, och pushen bygger om sidan.
-
-Första gången (tar 15–20 minuter, hämtar fem års prov):
-
-```powershell
-git clone https://github.com/jpeka/sjoTemp.git "$env:USERPROFILE\sjoTemp"
-powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\sjoTemp\scripts\hav_lokal.ps1"
-```
-
-Schemalägg en gång i veckan (måndagar 07:30):
-
-```powershell
-schtasks /Create /TN "sjoTemp HaV" /SC WEEKLY /D MON /ST 07:30 /TR "powershell -NoProfile -ExecutionPolicy Bypass -File %USERPROFILE%\sjoTemp\scripts\hav_lokal.ps1"
-```
-
-Logg: `%USERPROFILE%\sjoTemp\hav_lokal.log`.

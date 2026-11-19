@@ -79,7 +79,7 @@ const PALETTE = ["#2f7ebc","#d1702c","#3a9a5b","#a64ca6","#c4a017","#d64550","#1
 const WB = { lake: "sjö", sea: "hav", river: "å", unknown: "okänd" };
 const fmt = new Intl.DateTimeFormat("sv-SE", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Stockholm" });
 const state = { hidden: new Set(), sources: new Set(), showAll: false, showOld: false, days: 7 };
-const OFF_BY_DEFAULT = new Set(["hav"]);  // många badplatser med glesa prov – väljs till med knappen
+const OFF_BY_DEFAULT = new Set();  // källor som ska vara avvalda från start
 const lastTs = s => Date.parse(DATA.series[s.station_id].at(-1)[0]);
 let DATA, chart, colorOf = {};
 
@@ -195,7 +195,7 @@ async function load() {
       `${DATA.counts.observations.toLocaleString("sv-SE")} mätvärden från ${DATA.counts.stations} badplatser · uppdaterad ${fmt.format(new Date(DATA.generated))}`;
     document.getElementById("note").innerHTML = "Källor: " + Object.values(DATA.sources)
       .map(s => `<a href="${s.page}">${s.name}</a>`).join(" · ") +
-      ". Sensorerna hämtas varje timme och HaV:s badvattenprov varje vecka. Diagrammet visar alla mätvärden för de senaste " + DATA.detail_days + " dygnen och dygnsmedel före det. Tider visas i svensk tid.";
+      ". Sensorerna hämtas varje timme. Diagrammet visar alla mätvärden för de senaste " + DATA.detail_days + " dygnen och dygnsmedel före det. Tider visas i svensk tid.";
     renderAll();
   } catch (e) {
     document.getElementById("sub").innerHTML = `<span class="err">Kunde inte läsa data (${e.message}).</span>`;
