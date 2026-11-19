@@ -7,7 +7,7 @@ Lagring (textfiler, lätta att diffa i git):
 
 Användning:
   python scripts/collect.py --schedule hourly          källor som körs varje timme
-  python scripts/collect.py --source hav               en källa
+  python scripts/collect.py --source erken             en källa
   python scripts/collect.py --source sodertalje --backfill 2021-03-01
   python scripts/collect.py --source karlskrona --raw-file fil.geojson
 """
