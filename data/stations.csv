@@ -1,35 +1,35 @@
 station_id,source,native_id,name,waterbody,lat,lon,first_seen,last_seen
-bjarekraft:bryggan-i-mellbystrand,bjarekraft,bryggan-i-mellbystrand,Bryggan i Mellbystrand,sea,,,2026-11-18T14:24:00Z,2026-11-20T02:34:00Z
-bjarekraft:hamnen-i-magnarp,bjarekraft,hamnen-i-magnarp,Hamnen i Magnarp,sea,,,2026-11-18T14:50:00Z,2026-11-20T02:50:00Z
-bjarekraft:hamnen-i-vejbystrand,bjarekraft,hamnen-i-vejbystrand,Hamnen i Vejbystrand,sea,,,2026-11-18T14:20:00Z,2026-11-20T02:34:00Z
-bjarekraft:kallbadhuset-i-bastad,bjarekraft,kallbadhuset-i-bastad,Kallbadhuset i Båstad,sea,,,2026-11-18T13:54:00Z,2026-11-20T02:56:00Z
-bjarekraft:klitterhus-angelholm,bjarekraft,klitterhus-angelholm,Klitterhus Ängelholm,sea,,,2026-11-18T14:00:00Z,2026-11-20T03:00:00Z
-bjarekraft:morgonbryggan-i-torekov,bjarekraft,morgonbryggan-i-torekov,Morgonbryggan i Torekov,sea,,,2026-11-18T15:03:00Z,2026-11-20T02:59:00Z
-bjarekraft:sven-jons-udde-angelholm,bjarekraft,sven-jons-udde-angelholm,Sven Jons udde Ängelholm,sea,,,2026-11-18T13:31:00Z,2026-11-20T03:31:00Z
-bjarekraft:vastersjon-hjarnarp,bjarekraft,vastersjon-hjarnarp,Västersjön Hjärnarp,lake,,,2026-11-18T15:01:00Z,2026-11-20T03:31:00Z
-erken:erken-profil,erken,erken-profil,Erken,lake,59.84247,18.630983,2017-06-28T18:00:00Z,2026-11-20T03:00:00Z
-karlskrona:091c5276-4439-4129-9e1d-85e4f960f498,karlskrona,091c5276-4439-4129-9e1d-85e4f960f498,Trummenäs,sea,56.160736,15.726932,2026-11-18T13:33:47Z,2026-11-20T03:33:42Z
-karlskrona:0bec53ea-c29d-4921-9014-fb50d302d031,karlskrona,0bec53ea-c29d-4921-9014-fb50d302d031,Aspö,sea,56.12134,15.565705,2026-11-18T15:09:12Z,2026-11-20T03:09:08Z
-karlskrona:104e1869-30b9-49d9-822d-977e37b7e4bb,karlskrona,104e1869-30b9-49d9-822d-977e37b7e4bb,Tallholmen,sea,56.182828,15.53937,2026-11-18T15:16:01Z,2026-11-20T03:15:57Z
-karlskrona:3648fe64-54c2-4138-aa92-7b20cc0357f6,karlskrona,3648fe64-54c2-4138-aa92-7b20cc0357f6,Skälagölen,lake,56.242249,15.554476,2026-11-18T15:03:19Z,2026-11-20T01:35:02Z
-karlskrona:442e6e8c-c411-4367-a8a3-f83be2ca4414,karlskrona,442e6e8c-c411-4367-a8a3-f83be2ca4414,Allsjön,lake,56.323766,15.734236,2026-11-17T15:40:16Z,2026-11-20T02:40:07Z
-karlskrona:4db31e8b-e238-44e0-b114-d4a35830d30b,karlskrona,4db31e8b-e238-44e0-b114-d4a35830d30b,Bredasjön,lake,56.431234,15.529388,2026-11-15T21:52:32Z,2026-11-20T01:52:14Z
-karlskrona:61b0b654-713b-48ed-abbc-28cb6ac86e4e,karlskrona,61b0b654-713b-48ed-abbc-28cb6ac86e4e,Hallarum,sea,56.165121,15.826912,2026-11-18T13:40:52Z,2026-11-20T02:40:46Z
-karlskrona:620a4d74-bd58-41db-a20f-94697e11cbf5,karlskrona,620a4d74-bd58-41db-a20f-94697e11cbf5,Sandvik,sea,56.098372,15.462231,2026-11-18T09:17:22Z,2026-11-20T01:47:14Z
-karlskrona:694314ac-f110-47e5-b786-bbb3ea72b409,karlskrona,694314ac-f110-47e5-b786-bbb3ea72b409,Hagnan,sea,56.116037,15.60516,2026-11-18T14:35:30Z,2026-11-20T03:35:25Z
-karlskrona:7658db2e-8d4e-4050-8658-c5d3bcea4e4f,karlskrona,7658db2e-8d4e-4050-8658-c5d3bcea4e4f,Alljungen,lake,56.374502,15.515918,2026-11-18T15:16:46Z,2026-11-20T03:16:46Z
-karlskrona:78e9a3f3-25a2-4da0-9c3c-4b3ea501f1ef,karlskrona,78e9a3f3-25a2-4da0-9c3c-4b3ea501f1ef,Långö,sea,56.181635,15.581969,2026-11-18T14:41:01Z,2026-11-20T02:40:56Z
-karlskrona:941a4367-a69a-437d-8ffb-57fc2f491dce,karlskrona,941a4367-a69a-437d-8ffb-57fc2f491dce,Studentviken,sea,56.187649,15.593126,2026-11-18T14:37:58Z,2026-11-20T02:37:54Z
-karlskrona:b38de78b-516c-4e6b-a833-d335cf5232a4,karlskrona,b38de78b-516c-4e6b-a833-d335cf5232a4,Skönstavik,sea,56.201416,15.602019,2026-11-18T14:38:23Z,2026-11-20T02:38:17Z
-karlskrona:b4fea9a7-b671-4a59-b6da-b8394e2d6e4b,karlskrona,b4fea9a7-b671-4a59-b6da-b8394e2d6e4b,Knösö,sea,56.166047,15.665857,2026-11-18T14:27:25Z,2026-11-20T03:27:20Z
-karlskrona:bbb3c167-3aa2-4275-9655-aca34a187ac0,karlskrona,bbb3c167-3aa2-4275-9655-aca34a187ac0,Saltö,sea,56.166335,15.563336,2026-11-18T15:16:37Z,2026-11-20T03:16:33Z
-karlskrona:cb40ac04-1e30-4399-a8d4-a710cbc02fb8,karlskrona,cb40ac04-1e30-4399-a8d4-a710cbc02fb8,Sjuhalla,sea,56.191427,15.551962,2026-11-18T14:54:35Z,2026-11-20T02:54:30Z
-karlskrona:d0eb65f6-0ea5-4cb5-a7c4-a139807d6cff,karlskrona,d0eb65f6-0ea5-4cb5-a7c4-a139807d6cff,Kristianopel,sea,56.254375,16.042808,2026-11-18T14:28:32Z,2026-11-20T03:28:27Z
-karlskrona:d903b6a5-bc92-482c-a1f4-6342fbc49b5b,karlskrona,d903b6a5-bc92-482c-a1f4-6342fbc49b5b,Skärsjön,lake,56.317017,15.473589,2026-11-18T14:47:25Z,2026-11-20T01:47:21Z
-karlskrona:dec3ad18-a570-4d3a-8dc4-1da73e373f04,karlskrona,dec3ad18-a570-4d3a-8dc4-1da73e373f04,Petersvik,sea,56.091879,15.82564,2026-11-18T13:55:12Z,2026-11-20T02:55:07Z
-karlskrona:e9238668-f3aa-4311-b17b-04c604d27179,karlskrona,e9238668-f3aa-4311-b17b-04c604d27179,Hästö,sea,56.178881,15.626737,2026-11-18T14:29:06Z,2026-11-20T03:29:03Z
-karlskrona:eb80e843-92ee-452b-bf10-67dc03103cf8,karlskrona,eb80e843-92ee-452b-bf10-67dc03103cf8,Stumholmen,sea,56.159751,15.598634,2026-11-18T14:53:54Z,2026-11-20T02:53:50Z
-karlskrona:ecb1e803-e774-4653-a4a3-f6079b91d920,karlskrona,ecb1e803-e774-4653-a4a3-f6079b91d920,Dragsö,sea,56.173534,15.566684,2026-11-18T15:17:13Z,2026-11-20T03:17:08Z
+bjarekraft:bryggan-i-mellbystrand,bjarekraft,bryggan-i-mellbystrand,Bryggan i Mellbystrand,sea,,,2026-11-18T14:24:00Z,2026-11-20T10:29:00Z
+bjarekraft:hamnen-i-magnarp,bjarekraft,hamnen-i-magnarp,Hamnen i Magnarp,sea,,,2026-11-18T14:50:00Z,2026-11-20T12:50:00Z
+bjarekraft:hamnen-i-vejbystrand,bjarekraft,hamnen-i-vejbystrand,Hamnen i Vejbystrand,sea,,,2026-11-18T14:20:00Z,2026-11-20T11:02:00Z
+bjarekraft:kallbadhuset-i-bastad,bjarekraft,kallbadhuset-i-bastad,Kallbadhuset i Båstad,sea,,,2026-11-18T13:54:00Z,2026-11-20T12:04:00Z
+bjarekraft:klitterhus-angelholm,bjarekraft,klitterhus-angelholm,Klitterhus Ängelholm,sea,,,2026-11-18T14:00:00Z,2026-11-20T13:00:00Z
+bjarekraft:morgonbryggan-i-torekov,bjarekraft,morgonbryggan-i-torekov,Morgonbryggan i Torekov,sea,,,2026-11-18T15:03:00Z,2026-11-20T12:33:00Z
+bjarekraft:sven-jons-udde-angelholm,bjarekraft,sven-jons-udde-angelholm,Sven Jons udde Ängelholm,sea,,,2026-11-18T13:31:00Z,2026-11-20T12:31:00Z
+bjarekraft:vastersjon-hjarnarp,bjarekraft,vastersjon-hjarnarp,Västersjön Hjärnarp,lake,,,2026-11-18T15:01:00Z,2026-11-20T11:37:00Z
+erken:erken-profil,erken,erken-profil,Erken,lake,59.84247,18.630983,2017-06-28T18:00:00Z,2026-11-20T13:00:00Z
+karlskrona:091c5276-4439-4129-9e1d-85e4f960f498,karlskrona,091c5276-4439-4129-9e1d-85e4f960f498,Trummenäs,sea,56.160736,15.726932,2026-11-18T13:33:47Z,2026-11-20T12:33:41Z
+karlskrona:0bec53ea-c29d-4921-9014-fb50d302d031,karlskrona,0bec53ea-c29d-4921-9014-fb50d302d031,Aspö,sea,56.12134,15.565705,2026-11-18T15:09:12Z,2026-11-20T12:09:07Z
+karlskrona:104e1869-30b9-49d9-822d-977e37b7e4bb,karlskrona,104e1869-30b9-49d9-822d-977e37b7e4bb,Tallholmen,sea,56.182828,15.53937,2026-11-18T15:16:01Z,2026-11-20T12:15:56Z
+karlskrona:3648fe64-54c2-4138-aa92-7b20cc0357f6,karlskrona,3648fe64-54c2-4138-aa92-7b20cc0357f6,Skälagölen,lake,56.242249,15.554476,2026-11-18T15:03:19Z,2026-11-20T10:35:01Z
+karlskrona:442e6e8c-c411-4367-a8a3-f83be2ca4414,karlskrona,442e6e8c-c411-4367-a8a3-f83be2ca4414,Allsjön,lake,56.323766,15.734236,2026-11-17T15:40:16Z,2026-11-20T07:40:06Z
+karlskrona:4db31e8b-e238-44e0-b114-d4a35830d30b,karlskrona,4db31e8b-e238-44e0-b114-d4a35830d30b,Bredasjön,lake,56.431234,15.529388,2026-11-15T21:52:32Z,2026-11-20T12:52:13Z
+karlskrona:61b0b654-713b-48ed-abbc-28cb6ac86e4e,karlskrona,61b0b654-713b-48ed-abbc-28cb6ac86e4e,Hallarum,sea,56.165121,15.826912,2026-11-18T13:40:52Z,2026-11-20T12:40:44Z
+karlskrona:620a4d74-bd58-41db-a20f-94697e11cbf5,karlskrona,620a4d74-bd58-41db-a20f-94697e11cbf5,Sandvik,sea,56.098372,15.462231,2026-11-18T09:17:22Z,2026-11-20T11:17:13Z
+karlskrona:694314ac-f110-47e5-b786-bbb3ea72b409,karlskrona,694314ac-f110-47e5-b786-bbb3ea72b409,Hagnan,sea,56.116037,15.60516,2026-11-18T14:35:30Z,2026-11-20T12:35:24Z
+karlskrona:7658db2e-8d4e-4050-8658-c5d3bcea4e4f,karlskrona,7658db2e-8d4e-4050-8658-c5d3bcea4e4f,Alljungen,lake,56.374502,15.515918,2026-11-18T15:16:46Z,2026-11-20T12:16:45Z
+karlskrona:78e9a3f3-25a2-4da0-9c3c-4b3ea501f1ef,karlskrona,78e9a3f3-25a2-4da0-9c3c-4b3ea501f1ef,Långö,sea,56.181635,15.581969,2026-11-18T14:41:01Z,2026-11-20T12:40:55Z
+karlskrona:941a4367-a69a-437d-8ffb-57fc2f491dce,karlskrona,941a4367-a69a-437d-8ffb-57fc2f491dce,Studentviken,sea,56.187649,15.593126,2026-11-18T14:37:58Z,2026-11-20T12:37:53Z
+karlskrona:b38de78b-516c-4e6b-a833-d335cf5232a4,karlskrona,b38de78b-516c-4e6b-a833-d335cf5232a4,Skönstavik,sea,56.201416,15.602019,2026-11-18T14:38:23Z,2026-11-20T12:38:16Z
+karlskrona:b4fea9a7-b671-4a59-b6da-b8394e2d6e4b,karlskrona,b4fea9a7-b671-4a59-b6da-b8394e2d6e4b,Knösö,sea,56.166047,15.665857,2026-11-18T14:27:25Z,2026-11-20T12:27:19Z
+karlskrona:bbb3c167-3aa2-4275-9655-aca34a187ac0,karlskrona,bbb3c167-3aa2-4275-9655-aca34a187ac0,Saltö,sea,56.166335,15.563336,2026-11-18T15:16:37Z,2026-11-20T12:16:32Z
+karlskrona:cb40ac04-1e30-4399-a8d4-a710cbc02fb8,karlskrona,cb40ac04-1e30-4399-a8d4-a710cbc02fb8,Sjuhalla,sea,56.191427,15.551962,2026-11-18T14:54:35Z,2026-11-20T12:54:29Z
+karlskrona:d0eb65f6-0ea5-4cb5-a7c4-a139807d6cff,karlskrona,d0eb65f6-0ea5-4cb5-a7c4-a139807d6cff,Kristianopel,sea,56.254375,16.042808,2026-11-18T14:28:32Z,2026-11-20T12:28:26Z
+karlskrona:d903b6a5-bc92-482c-a1f4-6342fbc49b5b,karlskrona,d903b6a5-bc92-482c-a1f4-6342fbc49b5b,Skärsjön,lake,56.317017,15.473589,2026-11-18T14:47:25Z,2026-11-20T12:47:20Z
+karlskrona:dec3ad18-a570-4d3a-8dc4-1da73e373f04,karlskrona,dec3ad18-a570-4d3a-8dc4-1da73e373f04,Petersvik,sea,56.091879,15.82564,2026-11-18T13:55:12Z,2026-11-20T12:55:05Z
+karlskrona:e9238668-f3aa-4311-b17b-04c604d27179,karlskrona,e9238668-f3aa-4311-b17b-04c604d27179,Hästö,sea,56.178881,15.626737,2026-11-18T14:29:06Z,2026-11-20T12:29:02Z
+karlskrona:eb80e843-92ee-452b-bf10-67dc03103cf8,karlskrona,eb80e843-92ee-452b-bf10-67dc03103cf8,Stumholmen,sea,56.159751,15.598634,2026-11-18T14:53:54Z,2026-11-20T12:53:49Z
+karlskrona:ecb1e803-e774-4653-a4a3-f6079b91d920,karlskrona,ecb1e803-e774-4653-a4a3-f6079b91d920,Dragsö,sea,56.173534,15.566684,2026-11-18T15:17:13Z,2026-11-20T12:17:08Z
 sodertalje:abynasbadet,sodertalje,abynasbadet,Åbynäsbadet,unknown,59.018397,17.619576,2021-04-27T10:52:17Z,2026-11-02T05:56:02Z
 sodertalje:bergabadet,sodertalje,bergabadet,Bergabadet,unknown,59.057008,17.440774,2021-03-18T14:01:55Z,2026-11-02T06:35:15Z
 sodertalje:branningestrand,sodertalje,branningestrand,Bränningestrand,sea,59.148617,17.6674,2021-03-19T15:32:03Z,2026-11-02T09:07:03Z
@@ -37,5 +37,5 @@ sodertalje:eklundsnasbadet,sodertalje,eklundsnasbadet,Eklundsnäsbadet,lake,59.1
 sodertalje:farstanasbadet,sodertalje,farstanasbadet,Farstanäsbadet,sea,59.096884,17.65387,2021-03-18T14:15:29Z,2026-11-02T03:07:03Z
 sodertalje:malarbadet,sodertalje,malarbadet,Mälarbadet,lake,59.222657,17.611886,2021-04-09T09:04:23Z,2026-11-03T06:29:01Z
 sodertalje:nasets-udde-glashyttan,sodertalje,nasets-udde-glashyttan,Näsets udde(Glashyttan),unknown,59.158419,17.66072,2021-03-18T14:39:52Z,2026-11-02T10:29:31Z
-sodertalje:nya-malmsjobadet,sodertalje,nya-malmsjobadet,Nya Malmsjöbadet,lake,59.234823,17.536534,2021-03-18T14:15:14Z,2026-11-19T22:46:51Z
+sodertalje:nya-malmsjobadet,sodertalje,nya-malmsjobadet,Nya Malmsjöbadet,lake,59.234823,17.536534,2021-03-18T14:15:14Z,2026-11-20T10:46:50Z
 sodertalje:underasbadet,sodertalje,underasbadet,Underåsbadet,unknown,59.26482,17.536534,2021-03-18T14:28:35Z,2026-09-27T02:33:46Z
